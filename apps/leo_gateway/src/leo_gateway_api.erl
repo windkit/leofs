@@ -28,7 +28,7 @@
 -include("leo_gateway.hrl").
 -include("leo_http.hrl").
 -include_lib("leo_commons/include/leo_commons.hrl").
--include_lib("leo_logger/include/leo_logger.hrl").
+-include("lager.hrl").
 -include_lib("leo_redundant_manager/include/leo_redundant_manager.hrl").
 -include_lib("leo_s3_libs/include/leo_s3_bucket.hrl").
 -include_lib("leo_watchdog/include/leo_watchdog.hrl").
@@ -251,6 +251,7 @@ update_conf(log_level, Val) when Val == ?LOG_LEVEL_DEBUG;
                                  Val == ?LOG_LEVEL_WARN;
                                  Val == ?LOG_LEVEL_ERROR;
                                  Val == ?LOG_LEVEL_FATAL ->
+    %% TODO: Update Lager
     case application:set_env(leo_gateway, log_level, Val) of
         ok ->
             leo_logger_client_message:update_log_level(Val);

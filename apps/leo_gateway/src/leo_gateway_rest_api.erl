@@ -36,7 +36,7 @@
 
 -include("leo_gateway.hrl").
 -include("leo_http.hrl").
--include_lib("leo_logger/include/leo_logger.hrl").
+-include("lager.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
 -compile({inline, [handle/2, handle_1/3]}).

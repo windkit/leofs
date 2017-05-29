@@ -25,7 +25,7 @@
 -behaviour(gen_server).
 
 -include("leo_gateway.hrl").
--include_lib("leo_logger/include/leo_logger.hrl").
+-include_lib("lager.hrl").
 
 -export([start_link/1]).
 

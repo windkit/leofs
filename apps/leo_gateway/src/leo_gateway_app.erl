@@ -24,6 +24,7 @@
 %% @end
 %%======================================================================
 -module(leo_gateway_app).
+-compile([{parse_transform, lager_transform}]).
 
 -include("leo_gateway.hrl").
 -include("leo_nfs_mount3.hrl").
@@ -35,7 +36,8 @@
 -undef(warn).
 -undef(PROP_OPTIONS).
 -include_lib("leo_commons/include/leo_commons.hrl").
--include_lib("leo_logger/include/leo_logger.hrl").
+%-include_lib("leo_logger/include/leo_logger.hrl").
+-include("lager.hrl").
 -include_lib("leo_redundant_manager/include/leo_redundant_manager.hrl").
 -include_lib("leo_statistics/include/leo_statistics.hrl").
 -include_lib("nfs_rpc_server/src/nfs_rpc_app.hrl").
@@ -100,8 +102,37 @@ start(_Type, _StartArgs) ->
                     _ ->
                         DefLogDir
                 end,
-    ok = leo_logger_client_message:new(LogDir, ?env_log_level(App), log_file_appender()),
 
+    application:set_env(lager, log_root, LogDir),
+    application:set_env(lager, crash_log, "crash.log"),
+    LogLvl = ?env_log_level(App),
+
+    ok = application:set_env(lager, handlers,
+                             [{lager_file_backend, [{file, "info.log"}, {level, none}, {size, 10485760}, {date, "$D0"}, {count, 100}]},
+                              {lager_file_backend, [{file, "error.log"}, {level, none}, {size, 10485760}, {date, "$D0"}, {count, 100}]}]),
+
+    {ok, Handlers} = ?log_handlers(LogLvl),
+
+    %%    LagerHandler = lists:foldl(fun({File, Level}, Acc) ->
+    %%                                       One = {lager_file_backend, [{file, File},
+    %%                                                                   {level, Level},
+    %%                                                                   {size, 10485760},
+    %%                                                                   {date, "$D0"},
+    %%                                                                   {count, 100}]},
+    %%                                       [One | Acc]
+    %%                               end, [], Handlers),
+    %%    ok = application:set_env(lager, handlers, LagerHandler),
+    lager:start(),
+    lists:foreach(fun({File, Level}) ->
+                          lager:set_loglevel(lager_file_backend, File, Level)
+                  end, Handlers),
+    lager:debug("Test D"),
+    lager:info("Test I"),
+    lager:warning("Test W"),
+    lager:critical("Test C"),
+
+%%    ok = leo_logger_client_message:new(LogDir, LogLvl, log_file_appender()),
+%%
     %% access-logger (file-appender)
     case application:get_env(leo_gateway, is_enable_access_log) of
         {ok, true} ->
@@ -524,24 +555,24 @@ get_cluster_state([_|T]) ->
     get_cluster_state(T).
 
 
-%% @doc Retrieve log-appneder(s)
-%% @private
--spec(log_file_appender() ->
-             list()).
-log_file_appender() ->
-    case application:get_env(leo_gateway, log_appender) of
-        undefined   -> log_file_appender([], []);
-        {ok, Value} -> log_file_appender(Value, [])
-    end.
-
-log_file_appender([], []) ->
-    [{?LOG_ID_FILE_INFO,  ?LOG_APPENDER_FILE},
-     {?LOG_ID_FILE_ERROR, ?LOG_APPENDER_FILE}];
-log_file_appender([], Acc) ->
-    lists:reverse(Acc);
-log_file_appender([{Type, _}|T], Acc) when Type == file ->
-    log_file_appender(T, [{?LOG_ID_FILE_ERROR, ?LOG_APPENDER_FILE}|
-                          [{?LOG_ID_FILE_INFO, ?LOG_APPENDER_FILE}|Acc]]).
+%%%% @doc Retrieve log-appneder(s)
+%%%% @private
+%%-spec(log_file_appender() ->
+%%             list()).
+%%log_file_appender() ->
+%%    case application:get_env(leo_gateway, log_appender) of
+%%        undefined   -> log_file_appender([], []);
+%%        {ok, Value} -> log_file_appender(Value, [])
+%%    end.
+%%
+%%log_file_appender([], []) ->
+%%    [{?LOG_ID_FILE_INFO,  ?LOG_APPENDER_FILE},
+%%     {?LOG_ID_FILE_ERROR, ?LOG_APPENDER_FILE}];
+%%log_file_appender([], Acc) ->
+%%    lists:reverse(Acc);
+%%log_file_appender([{Type, _}|T], Acc) when Type == file ->
+%%    log_file_appender(T, [{?LOG_ID_FILE_ERROR, ?LOG_APPENDER_FILE}|
+%%                          [{?LOG_ID_FILE_INFO, ?LOG_APPENDER_FILE}|Acc]]).
 
 
 %% @doc Retrieve properties
