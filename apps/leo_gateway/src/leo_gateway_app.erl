@@ -108,8 +108,29 @@ start(_Type, _StartArgs) ->
     LogLvl = ?env_log_level(App),
 
     ok = application:set_env(lager, handlers,
-                             [{lager_file_backend, [{file, "info.log"}, {level, none}, {size, 10485760}, {date, "$D0"}, {count, 100}]},
-                              {lager_file_backend, [{file, "error.log"}, {level, none}, {size, 10485760}, {date, "$D0"}, {count, 100}]}]),
+                             [{lager_file_backend, [{file, "info.log"}, {level, none},
+                                                    {size, 10485760}, {date, "$D0"}, {count, 100},
+                                                    {formatter, lager_default_formatter},
+                                                    {formatter_config, ["[", sev, "]\t", atom_to_list(node()), "\t", date, "\t", time, "\t", {module, "null"}, ":", {function, "null"}, "\t", {line, "0"}, "\t", message, "\n"]}
+                                                   ]},
+                              {lager_file_backend, [{file, "error.log"}, {level, none},
+                                                    {size, 10485760}, {date, "$D0"}, {count, 100},
+                                                    {formatter, lager_default_formatter},
+                                                    {formatter_config, ["[", sev, "]\t", atom_to_list(node()), "\t", date, "\t", time, "\t", {module, "null"}, ":", {function, "null"}, "\t", {line, "0"}, "\t", message, "\n"]}
+                                                   ]}]),
+
+    ok = application:set_env(lager, extra_sinks,
+                             [{access_lager_event,
+                               [{handlers,
+                                 [{lager_file_backend, [{file, "access.log"}, {level, none},
+                                                        {size, 10485760}, {date, "$D0"}, {count, 100},
+                                                        {formatter, lager_default_formatter},
+                                                        {formatter_config, [message, "\n"]}
+                                                       ]}]
+                                },
+                                {async_threshold, 500},
+                                {async_threshold_window, 50}]
+                              }]),
 
     {ok, Handlers} = ?log_handlers(LogLvl),
 
@@ -131,16 +152,23 @@ start(_Type, _StartArgs) ->
     lager:warning("Test W"),
     lager:critical("Test C"),
 
-%%    ok = leo_logger_client_message:new(LogDir, LogLvl, log_file_appender()),
-%%
-    %% access-logger (file-appender)
     case application:get_env(leo_gateway, is_enable_access_log) of
         {ok, true} ->
-            ok = leo_logger_client_base:new(?LOG_GROUP_ID_ACCESS, ?LOG_ID_ACCESS,
-                                            LogDir, ?LOG_FILENAME_ACCESS);
+            ok = lager:set_loglevel(access_lager_event, lager_file_backend, "access.log", info);
         _ ->
             void
     end,
+
+%%    ok = leo_logger_client_message:new(LogDir, LogLvl, log_file_appender()),
+%%
+%%    %% access-logger (file-appender)
+%%    case application:get_env(leo_gateway, is_enable_access_log) of
+%%        {ok, true} ->
+%%            ok = leo_logger_client_base:new(?LOG_GROUP_ID_ACCESS, ?LOG_ID_ACCESS,
+%%                                            LogDir, ?LOG_FILENAME_ACCESS);
+%%        _ ->
+%%            void
+%%    end,
 
     %% Launch Supervisor
     Res = leo_gateway_sup:start_link(),
