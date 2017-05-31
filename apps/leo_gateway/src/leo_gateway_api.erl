@@ -254,7 +254,10 @@ update_conf(log_level, Val) when Val == ?LOG_LEVEL_DEBUG;
     %% TODO: Update Lager
     case application:set_env(leo_gateway, log_level, Val) of
         ok ->
-            leo_logger_client_message:update_log_level(Val);
+            {ok, Handlers} = ?log_handlers(Val),
+            lists:foreach(fun({File, Level}) ->
+                                  lager:set_loglevel(lager_file_backend, File, Level)
+                          end, Handlers);
         _ ->
             {error, ?ERROR_COULD_NOT_UPDATE_LOG_LEVEL}
     end;

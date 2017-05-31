@@ -340,8 +340,6 @@
 %% FOR ACCESS-LOG
 %%----------------------------------------------------------------------
 %% access-log
--define(LOG_GROUP_ID_ACCESS, 'log_grp_access_log').
--define(LOG_ID_ACCESS, 'log_id_access_log').
 -define(LOG_FILENAME_ACCESS, "access").
 
 -define(notify_metrics(_Method,_Bucket,_Size),
@@ -401,22 +399,7 @@
                          _Response,
                          _Latency,
                          _Cache
-                        ]),
-
-            leo_logger_client_base:append(
-              {?LOG_ID_ACCESS,
-               #message_log{format  = "[GET]\t~s\t~s\t~w\t~w\t~s\t~w\t~w\t~w\t~s\n",
-                            message = [binary_to_list(_Bucket),
-                                       _OrgPath,
-                                       _ChildNum,
-                                       _Size,
-                                       leo_date:date_format(),
-                                       leo_date:clock(),
-                                       _Response,
-                                       _Latency,
-                                       _Cache
-                                      ]}
-              })
+                        ])
             %% ?notify_metrics(<<"GET">>,_Bucket,_Size)
         end).
 -define(access_log_get_acl(_Bucket,_Path,_Response,_Begin),
@@ -433,21 +416,7 @@
                          _Response,
                          _Latency,
                          ""
-                        ]),
-            leo_logger_client_base:append(
-              {?LOG_ID_ACCESS,
-               #message_log{format  = "[GET-ACL]\t~s\t~s\t~w\t~w\t~s\t~w\t~w\t~w\t~s\n",
-                            message = [binary_to_list(_Bucket),
-                                       _OrgPath,
-                                       _ChildNum,
-                                       0,
-                                       leo_date:date_format(),
-                                       leo_date:clock(),
-                                       _Response,
-                                       _Latency,
-                                       ""
-                                      ]}
-              })
+                        ])
         end).
 -define(access_log_put(_Bucket,_Path,_Size,_Response,_Begin),
         begin
@@ -463,21 +432,7 @@
                          _Response,
                          _Latency,
                          ""
-                        ]),
-            leo_logger_client_base:append(
-              {?LOG_ID_ACCESS,
-               #message_log{format  = "[PUT]\t~s\t~s\t~w\t~w\t~s\t~w\t~w\t~w\t~s\n",
-                            message = [binary_to_list(_Bucket),
-                                       _OrgPath,
-                                       _ChildNum,
-                                       _Size,
-                                       leo_date:date_format(),
-                                       leo_date:clock(),
-                                       _Response,
-                                       _Latency,
-                                       ""
-                                      ]}
-              })
+                        ])
             %% ?notify_metrics(<<"PUT">>,_Bucket,_Size)
         end).
 -define(access_log_delete(_Bucket,_Path,_Size,_Response,_Begin),
@@ -494,21 +449,7 @@
                          _Response,
                          _Latency,
                          ""
-                        ]),
-            leo_logger_client_base:append(
-              {?LOG_ID_ACCESS,
-               #message_log{format  = "[DELETE]\t~s\t~s\t~w\t~w\t~s\t~w\t~w\t~w\t~s\n",
-                            message = [binary_to_list(_Bucket),
-                                       _OrgPath,
-                                       _ChildNum,
-                                       _Size,
-                                       leo_date:date_format(),
-                                       leo_date:clock(),
-                                       _Response,
-                                       _Latency,
-                                       ""
-                                      ]}
-              })
+                        ])
             %% ?notify_metrics(<<"DELETE">>,_Bucket,_Size)
         end).
 -define(access_log_head(_Bucket,_Path,_Response,_Begin),
@@ -525,21 +466,7 @@
                          _Response,
                          _Latency,
                          ""
-                        ]),
-            leo_logger_client_base:append(
-              {?LOG_ID_ACCESS,
-               #message_log{format  = "[HEAD]\t~s\t~s\t~w\t~w\t~s\t~w\t~w\t~w\t~s\n",
-                            message = [binary_to_list(_Bucket),
-                                       _OrgPath,
-                                       _ChildNum,
-                                       0,
-                                       leo_date:date_format(),
-                                       leo_date:clock(),
-                                       _Response,
-                                       _Latency,
-                                       ""
-                                      ]}
-              })
+                        ])
         end).
 
 -define(access_log(_Method,_Bucket,_Path,_Size,_Response,_Begin),
@@ -572,21 +499,7 @@
                          _Response,
                          _Latency,
                          ""
-                        ]),
-            leo_logger_client_base:append(
-              {?LOG_ID_ACCESS,
-               #message_log{format  = "[BUCKET-PUT]\t~s\t~s\t~w\t~w\t~s\t~w\t~w\t~w\t~s\n",
-                            message = [binary_to_list(_Bucket),
-                                       "",
-                                       0,
-                                       0,
-                                       leo_date:date_format(),
-                                       leo_date:clock(),
-                                       _Response,
-                                       _Latency,
-                                       ""
-                                      ]}
-              })
+                        ])
             %% ?notify_metrics(<<"PUT">>,_Bucket,_Size)
         end).
 -define(access_log_bucket_delete(_Bucket,_Response,_Begin),
@@ -602,21 +515,7 @@
                          _Response,
                          _Latency,
                          ""
-                        ]),
-            leo_logger_client_base:append(
-              {?LOG_ID_ACCESS,
-               #message_log{format  = "[BUCKET-DELETE]\t~s\t~s\t~w\t~w\t~s\t~w\t~w\t~w\t~s\n",
-                            message = [binary_to_list(_Bucket),
-                                       "",
-                                       0,
-                                       0,
-                                       leo_date:date_format(),
-                                       leo_date:clock(),
-                                       _Response,
-                                       _Latency,
-                                       ""
-                                      ]}
-              })
+                        ])
             %% ?notify_metrics(<<"DELETE">>,_Bucket,_Size)
         end).
 -define(access_log_bucket_head(_Bucket,_Response,_Begin),
@@ -632,21 +531,7 @@
                          _Response,
                          _Latency,
                          ""
-                        ]),
-            leo_logger_client_base:append(
-              {?LOG_ID_ACCESS,
-               #message_log{format  = "[BUCKET-HEAD]\t~s\t~s\t~w\t~w\t~s\t~w\t~w\t~w\t~s\n",
-                            message = [binary_to_list(_Bucket),
-                                       "",
-                                       0,
-                                       0,
-                                       leo_date:date_format(),
-                                       leo_date:clock(),
-                                       _Response,
-                                       _Latency,
-                                       ""
-                                      ]}
-              })
+                        ])
         end).
 -define(access_log_bucket_get(_Bucket, _Prefix, _Response,_Begin),
         begin
@@ -661,21 +546,7 @@
                          _Response,
                          _Latency,
                          ""
-                        ]),
-            leo_logger_client_base:append(
-              {?LOG_ID_ACCESS,
-               #message_log{format  = "[BUCKET-GET]\t~s\t~s\t~w\t~w\t~s\t~w\t~w\t~w\t~s\n",
-                            message = [binary_to_list(_Bucket),
-                                       binary_to_list(_Prefix),
-                                       0,
-                                       0,
-                                       leo_date:date_format(),
-                                       leo_date:clock(),
-                                       _Response,
-                                       _Latency,
-                                       ""
-                                      ]}
-              })
+                        ])
         end).
 
 -define(reply_fun(_Cause,_Method,_Bucket,_Key,_Len,_Begin),

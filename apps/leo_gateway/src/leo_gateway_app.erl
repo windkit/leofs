@@ -121,7 +121,7 @@ start(_Type, _StartArgs) ->
     ok = application:set_env(lager, extra_sinks,
                              [{access_lager_event,
                                [{handlers,
-                                 [{lager_file_backend, [{file, "access.log"}, {level, none},
+                                 [{lager_file_backend, [{file, ?LOG_FILENAME_ACCESS}, {level, none},
                                                         {size, 10485760}, {date, "$D0"}, {count, 100},
                                                         {formatter, lager_default_formatter},
                                                         {formatter_config, [message, "\n"]}
@@ -133,23 +133,10 @@ start(_Type, _StartArgs) ->
 
     {ok, Handlers} = ?log_handlers(LogLvl),
 
-    %%    LagerHandler = lists:foldl(fun({File, Level}, Acc) ->
-    %%                                       One = {lager_file_backend, [{file, File},
-    %%                                                                   {level, Level},
-    %%                                                                   {size, 10485760},
-    %%                                                                   {date, "$D0"},
-    %%                                                                   {count, 100}]},
-    %%                                       [One | Acc]
-    %%                               end, [], Handlers),
-    %%    ok = application:set_env(lager, handlers, LagerHandler),
     lager:start(),
     lists:foreach(fun({File, Level}) ->
                           lager:set_loglevel(lager_file_backend, File, Level)
                   end, Handlers),
-    lager:debug("Test D"),
-    lager:info("Test I"),
-    lager:warning("Test W"),
-    lager:critical("Test C"),
 
     case application:get_env(leo_gateway, is_enable_access_log) of
         {ok, true} ->
@@ -157,17 +144,6 @@ start(_Type, _StartArgs) ->
         _ ->
             void
     end,
-
-%%    ok = leo_logger_client_message:new(LogDir, LogLvl, log_file_appender()),
-%%
-%%    %% access-logger (file-appender)
-%%    case application:get_env(leo_gateway, is_enable_access_log) of
-%%        {ok, true} ->
-%%            ok = leo_logger_client_base:new(?LOG_GROUP_ID_ACCESS, ?LOG_ID_ACCESS,
-%%                                            LogDir, ?LOG_FILENAME_ACCESS);
-%%        _ ->
-%%            void
-%%    end,
 
     %% Launch Supervisor
     Res = leo_gateway_sup:start_link(),
@@ -179,7 +155,6 @@ start(_Type, _StartArgs) ->
 prep_stop(_State) ->
     catch leo_redundant_manager_sup:stop(),
     catch leo_mq_sup:stop(),
-    catch leo_logger_sup:stop(),
 
     case catch get_options() of
         {ok, HttpOptions} ->
@@ -580,26 +555,6 @@ get_cluster_state([#member{state = ?STATE_RUNNING}|_]) ->
     ?STATE_RUNNING;
 get_cluster_state([_|T]) ->
     get_cluster_state(T).
-
-
-%%%% @doc Retrieve log-appneder(s)
-%%%% @private
-%%-spec(log_file_appender() ->
-%%             list()).
-%%log_file_appender() ->
-%%    case application:get_env(leo_gateway, log_appender) of
-%%        undefined   -> log_file_appender([], []);
-%%        {ok, Value} -> log_file_appender(Value, [])
-%%    end.
-%%
-%%log_file_appender([], []) ->
-%%    [{?LOG_ID_FILE_INFO,  ?LOG_APPENDER_FILE},
-%%     {?LOG_ID_FILE_ERROR, ?LOG_APPENDER_FILE}];
-%%log_file_appender([], Acc) ->
-%%    lists:reverse(Acc);
-%%log_file_appender([{Type, _}|T], Acc) when Type == file ->
-%%    log_file_appender(T, [{?LOG_ID_FILE_ERROR, ?LOG_APPENDER_FILE}|
-%%                          [{?LOG_ID_FILE_INFO, ?LOG_APPENDER_FILE}|Acc]]).
 
 
 %% @doc Retrieve properties
