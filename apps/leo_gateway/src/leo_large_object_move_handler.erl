@@ -25,7 +25,7 @@
 
 -include("leo_gateway.hrl").
 -include("leo_http.hrl").
--include("lager.hrl").
+-include_lib("leo_logger/include/lager_logger.hrl").
 -include_lib("leo_object_storage/include/leo_object_storage.hrl").
 -include_lib("leo_dcerl/include/leo_dcerl.hrl").
 -include_lib("eunit/include/eunit.hrl").

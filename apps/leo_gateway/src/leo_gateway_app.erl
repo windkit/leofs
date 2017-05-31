@@ -36,8 +36,7 @@
 -undef(warn).
 -undef(PROP_OPTIONS).
 -include_lib("leo_commons/include/leo_commons.hrl").
-%-include_lib("leo_logger/include/leo_logger.hrl").
--include("lager.hrl").
+-include_lib("leo_logger/include/lager_logger.hrl").
 -include_lib("leo_redundant_manager/include/leo_redundant_manager.hrl").
 -include_lib("leo_statistics/include/leo_statistics.hrl").
 -include_lib("nfs_rpc_server/src/nfs_rpc_app.hrl").
@@ -110,13 +109,13 @@ start(_Type, _StartArgs) ->
     ok = application:set_env(lager, handlers,
                              [{lager_file_backend, [{file, "info.log"}, {level, none},
                                                     {size, 10485760}, {date, "$D0"}, {count, 100},
-                                                    {formatter, lager_default_formatter},
-                                                    {formatter_config, ["[", sev, "]\t", atom_to_list(node()), "\t", date, "\t", time, "\t", {module, "null"}, ":", {function, "null"}, "\t", {line, "0"}, "\t", message, "\n"]}
+                                                    {formatter, lager_leofs_formatter},
+                                                    {formatter_config, ["[", sev, "]\t", atom_to_list(node()), "\t", leodate, "\t", leotime, "\t", {module, "null"}, ":", {function, "null"}, "\t", {line, "0"}, "\t", message, "\n"]}
                                                    ]},
                               {lager_file_backend, [{file, "error.log"}, {level, none},
                                                     {size, 10485760}, {date, "$D0"}, {count, 100},
-                                                    {formatter, lager_default_formatter},
-                                                    {formatter_config, ["[", sev, "]\t", atom_to_list(node()), "\t", date, "\t", time, "\t", {module, "null"}, ":", {function, "null"}, "\t", {line, "0"}, "\t", message, "\n"]}
+                                                    {formatter, lager_leofs_formatter},
+                                                    {formatter_config, ["[", sev, "]\t", atom_to_list(node()), "\t", leodate, "\t", leotime, "\t", {module, "null"}, ":", {function, "null"}, "\t", {line, "0"}, "\t", message, "\n"]}
                                                    ]}]),
 
     ok = application:set_env(lager, extra_sinks,

@@ -23,7 +23,7 @@
 
 -include("leo_gateway.hrl").
 -include("leo_http.hrl").
--include("lager.hrl").
+-include_lib("leo_logger/include/lager_logger.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
 -export([iterator_init/2, iterator_next/1, iterator_set_chunked/3]).

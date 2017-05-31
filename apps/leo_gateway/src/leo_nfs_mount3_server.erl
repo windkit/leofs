@@ -24,7 +24,7 @@
 -include("leo_gateway.hrl").
 -include("leo_nfs_mount3.hrl").
 -include_lib("leo_commons/include/leo_commons.hrl").
--include_lib("lager.hrl").
+-include_lib("leo_logger/include/lager_logger.hrl").
 -include_lib("leo_s3_libs/include/leo_s3_auth.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
