@@ -23,7 +23,7 @@
 
 -include("leo_storage.hrl").
 -include_lib("leo_commons/include/leo_commons.hrl").
--include_lib("leo_logger/include/leo_logger.hrl").
+-include_lib("leo_logger/include/lager_logger.hrl").
 -include_lib("leo_mq/include/leo_mq.hrl").
 -include_lib("leo_object_storage/include/leo_object_storage.hrl").
 -include_lib("leo_redundant_manager/include/leo_redundant_manager.hrl").
@@ -609,8 +609,11 @@ update_conf(log_level, Val) when Val == ?LOG_LEVEL_DEBUG;
                                  Val == ?LOG_LEVEL_FATAL ->
     case application:set_env(leo_storage, log_level, Val) of
         ok ->
-            leo_logger_client_message:update_log_level(Val);
-        _ ->
+			{ok, Handlers} = ?log_handlers(Val),
+			lists:foreach(fun({File, Level}) ->
+								  lager:set_loglevel(lager_file_backend, File, Level)
+						  end, Handlers);
+		_ ->
             {error, ?ERROR_COULD_NOT_UPDATE_LOG_LEVEL}
     end;
 update_conf(consistency_level, {W, R, D}) when is_integer(W),

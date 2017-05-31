@@ -303,3 +303,22 @@ launch_redundant_manager(RefSup, Managers, QueueDir) ->
                  permanent, 2000, supervisor, [leo_redundant_manager_sup]},
     {ok, _} = supervisor:start_child(RefSup, ChildSpec),
     ok.
+
+
+%% @doc Retrieve log-appneder(s)
+%% @private
+-spec(log_file_appender() ->
+             list()).
+log_file_appender() ->
+    case application:get_env(leo_storage, log_appender) of
+        undefined   -> log_file_appender([], []);
+        {ok, Value} -> log_file_appender(Value, [])
+    end.
+
+log_file_appender([], []) ->
+    [{?LOG_ID_FILE_INFO,  ?LOG_APPENDER_FILE},
+     {?LOG_ID_FILE_ERROR, ?LOG_APPENDER_FILE}];
+log_file_appender([], Acc) ->
+    lists:reverse(Acc);
+log_file_appender([{Type, _}|T], Acc) when Type == file ->
+    log_file_appender(T, [{?LOG_ID_FILE_ERROR, ?LOG_APPENDER_FILE}|[{?LOG_ID_FILE_INFO, ?LOG_APPENDER_FILE}|Acc]]).

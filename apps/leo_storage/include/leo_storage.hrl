@@ -565,45 +565,39 @@
 -define(access_log_get(_Case,_Key,_Size,_ReqId,_Begin,_Msg),
         begin
             case ?can_output_access_log(_Case) of
-                true ->
-                    _Latency = erlang:round((leo_date:clock() - _Begin) / 1000),
-                    leo_logger_client_base:append(
-                      {?LOG_ID_ACCESS,
-                       #message_log{ format  = "[GET]\t[Gateway]\t~s\t~w\t~w\t~s\t~w\t~w\t~p\n",
-                                     message = [_Key,
-                                                _Size,
-                                                _ReqId,
-                                                leo_date:date_format(),
-                                                leo_date:clock(),
-                                                _Latency,
-                                                _Msg
-                                               ]}
-                      });
-                false ->
-                    ok
-            end
-        end).
+				true ->
+					_Latency = erlang:round((leo_date:clock() - _Begin) / 1000),
+					access:info("[GET]\t[Gateway]\t~s\t~w\t~w\t~s\t~w\t~w\t~p\n",
+								[_Key,
+								 _Size,
+								 _ReqId,
+								 leo_date:date_format(),
+								 leo_date:clock(),
+								 _Latency,
+								 _Msg
+								]);
+				false ->
+					ok
+			end
+		end).
 
 -define(access_log_storage_get(_Key,_Size,_Begin,_Msg),
-        ?access_log_storage_get(?ACC_LOG_L_OK,_Key,_Size,_Begin,_Msg)).
+		?access_log_storage_get(?ACC_LOG_L_OK,_Key,_Size,_Begin,_Msg)).
 -define(access_log_storage_get(_Case,_Key,_Size,_Begin,_Msg),
-        begin
-            case ?can_output_access_log(_Case) of
+		begin
+			case ?can_output_access_log(_Case) of
                 true ->
-                    _Latency = erlang:round((leo_date:clock() - _Begin) / 1000),
-                    leo_logger_client_base:append(
-                      {?LOG_ID_ACCESS,
-                       #message_log{ format  = "[GET]\t[Storage]\t~s\t~w\t\t~s\t~w\t~w\t~p\n",
-                                     message = [_Key,
-                                                _Size,
-                                                leo_date:date_format(),
-                                                leo_date:clock(),
-                                                _Latency,
-                                                _Msg
-                                               ]}
-                      });
-                false ->
-                    ok
+					_Latency = erlang:round((leo_date:clock() - _Begin) / 1000),
+					access:info("[GET]\t[Storage]\t~s\t~w\t\t~s\t~w\t~w\t~p\n",
+								[_Key,
+								 _Size,
+								 leo_date:date_format(),
+								 leo_date:clock(),
+								 _Latency,
+								 _Msg
+								]);
+				false ->
+					ok
             end
         end).
 
@@ -614,30 +608,27 @@
             case ?can_output_access_log(_Case) of
                 true ->
                     _Latency = erlang:round((leo_date:clock() - _Begin) / 1000),
-                    leo_logger_client_base:append(
-                      {?LOG_ID_ACCESS,
-                       #message_log{ format  = "[GET]\t[Gateway]\t~s[~w-~w]\t~w\t~w\t~s\t~w\t~w\t~p\n",
-                                     message = [_Key,
-                                                _Start,
-                                                _End,
-                                                _Size,
-                                                _ReqId,
-                                                leo_date:date_format(),
-                                                leo_date:clock(),
-                                                _Latency,
-                                                _Msg
-                                               ]}
-                      });
-                false ->
-                    ok
-            end
-        end).
+					access:info("[GET]\t[Gateway]\t~s[~w-~w]\t~w\t~w\t~s\t~w\t~w\t~p\n",
+								[_Key,
+								 _Start,
+								 _End,
+								 _Size,
+								 _ReqId,
+								 leo_date:date_format(),
+								 leo_date:clock(),
+								 _Latency,
+								 _Msg
+								]);
+				false ->
+					ok
+			end
+		end).
 
 -define(access_log_storage_put(_Method,_Key,_Size,_ReqId,_Begin,_Msg),
-        ?access_log_storage_put(?ACC_LOG_L_OK,_Method,_Key,_Size,_ReqId,_Begin,_Msg)).
+		?access_log_storage_put(?ACC_LOG_L_OK,_Method,_Key,_Size,_ReqId,_Begin,_Msg)).
 -define(access_log_storage_put(_Case,_Method,_Key,_Size,_ReqId,_Begin,_Msg),
-        begin
-            case _Method of
+		begin
+			case _Method of
                 ?CMD_DELETE ->
                     ?access_log_storage_delete(_Case,_Key,_Size,_ReqId,_Begin,_Msg);
                 ?CMD_PUT ->
@@ -652,89 +643,77 @@
             case ?can_output_access_log(_Case) of
                 true ->
                     _Latency = erlang:round((leo_date:clock() - _Begin) / 1000),
-                    leo_logger_client_base:append(
-                      {?LOG_ID_ACCESS,
-                       #message_log{ format  = "[DEL]\t[Storage]\t~s\t~w\t~w\t~s\t~w\t~w\t~p\n",
-                                     message = [_Key,
-                                                _Size,
-                                                _ReqId,
-                                                leo_date:date_format(),
-                                                leo_date:clock(),
-                                                _Latency,
-                                                _Msg
-                                               ]}
-                      });
-                false ->
-                    ok
-            end
-        end).
+					access:info("[DEL]\t[Storage]\t~s\t~w\t~w\t~s\t~w\t~w\t~p\n",
+								[_Key,
+								 _Size,
+								 _ReqId,
+								 leo_date:date_format(),
+								 leo_date:clock(),
+								 _Latency,
+								 _Msg
+								]);
+				false ->
+					ok
+			end
+		end).
 
 -define(access_log_storage_put_1(_Case,_Key,_Size,_ReqId,_Begin,_Msg),
-        begin
-            case ?can_output_access_log(_Case) of
-                true ->
-                    _Latency = erlang:round((leo_date:clock() - _Begin) / 1000),
-                    leo_logger_client_base:append(
-                      {?LOG_ID_ACCESS,
-                       #message_log{ format  = "[PUT]\t[Storage]\t~s\t~w\t~w\t~s\t~w\t~w\t~p\n",
-                                     message = [_Key,
-                                                _Size,
-                                                _ReqId,
-                                                leo_date:date_format(),
-                                                leo_date:clock(),
-                                                _Latency,
-                                                _Msg
-                                               ]}
-                      });
+		begin
+			case ?can_output_access_log(_Case) of
+				true ->
+					_Latency = erlang:round((leo_date:clock() - _Begin) / 1000),
+					access:info("[PUT]\t[Storage]\t~s\t~w\t~w\t~s\t~w\t~w\t~p\n",
+								[_Key,
+								 _Size,
+								 _ReqId,
+								 leo_date:date_format(),
+								 leo_date:clock(),
+								 _Latency,
+								 _Msg
+								]);
                 false ->
-                    ok
-            end
-        end).
+					ok
+			end
+		end).
 
 -define(access_log_put(_Key,_Size,_ReqId,_Begin,_Msg),
-        ?access_log_put(?ACC_LOG_L_OK,_Key,_Size,_ReqId,_Begin,_Msg)).
+		?access_log_put(?ACC_LOG_L_OK,_Key,_Size,_ReqId,_Begin,_Msg)).
 -define(access_log_put(_Case,_Key,_Size,_ReqId,_Begin,_Msg),
-        begin
-            case ?can_output_access_log(_Case) of
-                true ->
-                    _Latency = erlang:round((leo_date:clock() - _Begin) / 1000),
-                    leo_logger_client_base:append(
-                      {?LOG_ID_ACCESS,
-                       #message_log{ format  = "[PUT]\t[Gateway]\t~s\t~w\t~w\t~s\t~w\t~w\t~p\n",
-                                     message = [_Key,
-                                                _Size,
-                                                _ReqId,
-                                                leo_date:date_format(),
-                                                leo_date:clock(),
-                                                _Latency,
-                                                _Msg
-                                               ]}
-                      });
-                false ->
-                    ok
-            end
-        end).
+		begin
+			case ?can_output_access_log(_Case) of
+				true ->
+					_Latency = erlang:round((leo_date:clock() - _Begin) / 1000),
+					access:info("[PUT]\t[Gateway]\t~s\t~w\t~w\t~s\t~w\t~w\t~p\n",
+								[_Key,
+								 _Size,
+								 _ReqId,
+								 leo_date:date_format(),
+								 leo_date:clock(),
+								 _Latency,
+								 _Msg
+								]);
+				false ->
+					ok
+			end
+		end).
 
 -define(access_log_delete(_Key,_Size,_ReqId,_Begin,_Msg),
-        ?access_log_delete(?ACC_LOG_L_OK,_Key,_Size,_ReqId,_Begin,_Msg)).
+		?access_log_delete(?ACC_LOG_L_OK,_Key,_Size,_ReqId,_Begin,_Msg)).
 -define(access_log_delete(_Case,_Key,_Size,_ReqId,_Begin,_Msg),
-        begin
-            case ?can_output_access_log(_Case) of
-                true ->
-                    _Latency = erlang:round((leo_date:clock() - _Begin) / 1000),
-                    leo_logger_client_base:append(
-                      {?LOG_ID_ACCESS,
-                       #message_log{ format  = "[DEL]\t[Gateway]\t~s\t~w\t~w\t~s\t~w\t~w\t~p\n",
-                                     message = [_Key,
-                                                _Size,
-                                                _ReqId,
-                                                leo_date:date_format(),
-                                                leo_date:clock(),
-                                                _Latency,
-                                                _Msg
-                                               ]}
-                      });
-                false ->
+		begin
+			case ?can_output_access_log(_Case) of
+				true ->
+					_Latency = erlang:round((leo_date:clock() - _Begin) / 1000),
+					access:info("[DEL]\t[Gateway]\t~s\t~w\t~w\t~s\t~w\t~w\t~p\n",
+								[_Key,
+								 _Size,
+								 _ReqId,
+								 leo_date:date_format(),
+								 leo_date:clock(),
+								 _Latency,
+								 _Msg
+								]);
+				false ->
                     ok
             end
         end).

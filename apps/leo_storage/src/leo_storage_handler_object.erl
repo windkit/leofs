@@ -26,7 +26,7 @@
 
 -include("leo_storage.hrl").
 -include_lib("leo_commons/include/leo_commons.hrl").
--include_lib("leo_logger/include/leo_logger.hrl").
+-include_lib("leo_logger/include/lager_logger.hrl").
 -include_lib("leo_object_storage/include/leo_object_storage.hrl").
 -include_lib("leo_ordning_reda/include/leo_ordning_reda.hrl").
 -include_lib("leo_redundant_manager/include/leo_redundant_manager.hrl").
@@ -1419,7 +1419,6 @@ replicate_callback(Object) ->
 
 -ifdef(EUNIT).
 get_cmeta_test() ->
-    ok = leo_logger_client_message:new("./", ?LOG_LEVEL_WARN),
     %% destination side with custom metadata
     UDM = [{<<"name">>, <<"LeoFS">>},
            {<<"category">>, <<"distributed storage">>},
