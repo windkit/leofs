@@ -251,7 +251,6 @@ update_conf(log_level, Val) when Val == ?LOG_LEVEL_DEBUG;
                                  Val == ?LOG_LEVEL_WARN;
                                  Val == ?LOG_LEVEL_ERROR;
                                  Val == ?LOG_LEVEL_FATAL ->
-    %% TODO: Update Lager
     case application:set_env(leo_gateway, log_level, Val) of
         ok ->
             {ok, Handlers} = ?log_handlers(Val),

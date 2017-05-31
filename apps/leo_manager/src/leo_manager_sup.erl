@@ -85,7 +85,6 @@ start_link() ->
             ok = leo_manager_console:start_link(leo_manager_formatter_json, JSON_Console, PluginModConsole),
 
             %% Launch the components
-            ok = start_logger(),
             ok = leo_manager_mq_client:start(?MODULE, [], ?env_queue_dir()),
             ok = start_redundant_manager(Pid, Mode, ReplicaNodes_1),
             ok = start_s3libs(),
@@ -189,48 +188,6 @@ init([]) ->
 %% ---------------------------------------------------------------------
 %% Inner Function(s)
 %% ---------------------------------------------------------------------
-%% @doc Launch LeoLogger
-%% @private
-start_logger() ->
-    LogDir = ?env_log_dir(),
-    LogLevel = ?env_log_level(leo_manager),
-    application:set_env(lager, log_root, LogDir),
-    application:set_env(lager, crash_log, "crash.log"),
-
-    ok = application:set_env(lager, handlers,
-                             [{lager_file_backend, [{file, "info.log"}, {level, none},
-                                                    {size, 10485760}, {date, "$D0"}, {count, 100},
-                                                    {formatter, lager_leofs_formatter},
-                                                    {formatter_config, ["[", sev, "]\t", atom_to_list(node()), "\t", leodate, "\t", leotime, "\t", {module, "null"}, ":", {function, "null"}, "\t", {line, "0"}, "\t", message, "\n"]}
-                                                   ]},
-                              {lager_file_backend, [{file, "error.log"}, {level, none},
-                                                    {size, 10485760}, {date, "$D0"}, {count, 100},
-                                                    {formatter, lager_leofs_formatter},
-                                                    {formatter_config, ["[", sev, "]\t", atom_to_list(node()), "\t", leodate, "\t", leotime, "\t", {module, "null"}, ":", {function, "null"}, "\t", {line, "0"}, "\t", message, "\n"]}
-                                                   ]}]),
-
-    ok = application:set_env(lager, extra_sinks,
-                             [{cmdhistory_lager_event,
-                               [{handlers,
-                                 [{lager_file_backend, [{file, ?LOG_FILENAME_HISTORY}, {level, info},
-                                                        {size, 10485760}, {date, "$D0"}, {count, 100},
-                                                        {formatter, lager_default_formatter},
-                                                        {formatter_config, [message, "\n"]}
-                                                       ]}]
-                                },
-                                {async_threshold, 500},
-                                {async_threshold_window, 50}]
-                              }]),
-
-    {ok, Handlers} = ?log_handlers(LogLevel),
-
-    lager:start(),
-    lists:foreach(fun({File, Level}) ->
-                          lager:set_loglevel(lager_file_backend, File, Level)
-                  end, Handlers),
-    ok.
-
-
 %% @doc Launch LeoRedundantManager
 %% @private
 start_redundant_manager(Pid, Mode, ReplicaNodes) ->
