@@ -26,7 +26,7 @@
 -include("leo_manager.hrl").
 -include("tcp_server.hrl").
 -include_lib("leo_commons/include/leo_commons.hrl").
--include_lib("leo_logger/include/leo_logger.hrl").
+-include_lib("leo_logger/include/lager_logger.hrl").
 -include_lib("leo_redundant_manager/include/leo_redundant_manager.hrl").
 -include_lib("leo_statistics/include/leo_statistics.hrl").
 -include_lib("leo_s3_libs/include/leo_s3_auth.hrl").
@@ -194,10 +194,40 @@ init([]) ->
 start_logger() ->
     LogDir = ?env_log_dir(),
     LogLevel = ?env_log_level(leo_manager),
-    ok = leo_logger_client_message:new(
-           LogDir, LogLevel, log_file_appender()),
-    ok = leo_logger_client_base:new(?LOG_GROUP_ID_HISTORY, ?LOG_ID_HISTORY,
-                                    LogDir, ?LOG_FILENAME_HISTORY),
+    application:set_env(lager, log_root, LogDir),
+    application:set_env(lager, crash_log, "crash.log"),
+
+    ok = application:set_env(lager, handlers,
+                             [{lager_file_backend, [{file, "info.log"}, {level, none},
+                                                    {size, 10485760}, {date, "$D0"}, {count, 100},
+                                                    {formatter, lager_leofs_formatter},
+                                                    {formatter_config, ["[", sev, "]\t", atom_to_list(node()), "\t", leodate, "\t", leotime, "\t", {module, "null"}, ":", {function, "null"}, "\t", {line, "0"}, "\t", message, "\n"]}
+                                                   ]},
+                              {lager_file_backend, [{file, "error.log"}, {level, none},
+                                                    {size, 10485760}, {date, "$D0"}, {count, 100},
+                                                    {formatter, lager_leofs_formatter},
+                                                    {formatter_config, ["[", sev, "]\t", atom_to_list(node()), "\t", leodate, "\t", leotime, "\t", {module, "null"}, ":", {function, "null"}, "\t", {line, "0"}, "\t", message, "\n"]}
+                                                   ]}]),
+
+    ok = application:set_env(lager, extra_sinks,
+                             [{cmdhistory_lager_event,
+                               [{handlers,
+                                 [{lager_file_backend, [{file, ?LOG_FILENAME_HISTORY}, {level, info},
+                                                        {size, 10485760}, {date, "$D0"}, {count, 100},
+                                                        {formatter, lager_default_formatter},
+                                                        {formatter_config, [message, "\n"]}
+                                                       ]}]
+                                },
+                                {async_threshold, 500},
+                                {async_threshold_window, 50}]
+                              }]),
+
+    {ok, Handlers} = ?log_handlers(LogLevel),
+
+    lager:start(),
+    lists:foreach(fun({File, Level}) ->
+                          lager:set_loglevel(lager_file_backend, File, Level)
+                  end, Handlers),
     ok.
 
 
@@ -515,24 +545,3 @@ create_s3api_related_tables(true, Nodes) ->
     leo_s3_endpoint:set_endpoint(?DEF_ENDPOINT_2),
     ok.
 
-
-%% @doc Get log-file appender from env
-%% @private
--spec(log_file_appender() ->
-             list()).
-log_file_appender() ->
-    case application:get_env(leo_manager, log_appender) of
-        undefined   -> log_file_appender([], []);
-        {ok, Value} -> log_file_appender(Value, [])
-    end.
-
--spec(log_file_appender(list(), list()) ->
-             list()).
-log_file_appender([], []) ->
-    [{?LOG_ID_FILE_INFO,  ?LOG_APPENDER_FILE},
-     {?LOG_ID_FILE_ERROR, ?LOG_APPENDER_FILE}];
-log_file_appender([], Acc) ->
-    lists:reverse(Acc);
-log_file_appender([{Type, _}|T], Acc) when Type == file ->
-    log_file_appender(T, [{?LOG_ID_FILE_ERROR, ?LOG_APPENDER_FILE}|
-                          [{?LOG_ID_FILE_INFO, ?LOG_APPENDER_FILE}|Acc]]).
