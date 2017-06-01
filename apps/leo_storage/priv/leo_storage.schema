@@ -1175,6 +1175,15 @@
   {default, false}
  ]}.
 
+%% @doc Choose Logger Backend (lager/leo_logger)
+{mapping,
+ "log.backend",
+ "leo_logger.log_backend",
+ [
+  {datatype, {enum, [lager, leo_logger]}},
+  {default, leo_logger}
+ ]}.
+
 %% @doc leo-mq.profile
 {mapping,
  "leo_mq.profile",
